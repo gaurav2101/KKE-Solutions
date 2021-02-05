@@ -1,0 +1,208 @@
+##This solution deploys Haproxy App on Kubernetes for KodeKloud Engineer Solution
+
+##Step 1 - Create a namespace haproxy
+##   Cmd  - kubectl create namespace haproxy
+
+##Step2 - Create a Service Account
+## Run kubectl create -f serviceaccount.yml -n haproxy 
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: haproxy-service-account
+  namespace: haproxy
+
+##Step3 - Create a Cluster Role
+##Run kubectl create -f clusterrole.yml -n haproxy 
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: 
+  name: haproxy-cluster-role-datacenter
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - endpoints
+  - nodes
+  - pods
+  - services
+  - namespaces
+  - events
+  - serviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - "extensions"
+  resources:
+  - ingresses
+  - ingresses/status
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - patch
+  - update
+
+##Step4 - Create a ClusterRoleBinding
+##Run kubectl create -f clusterrolebinding.yml -n haproxy
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name:  haproxy-cluster-role-binding-datacenterd
+  namespace: haproxy
+subjects:
+- kind: ServiceAccount
+  name: haproxy-service-account-datacenter
+  namespace: haproxy-controller-datacenter
+roleRef:
+  kind: ClusterRole 
+  name: haproxy-cluster-role-datacenter
+  apiGroup: rbac.authorization.k8s.io
+  
+##Step5 - Create a Backend Deployment
+##Run kubectl create -f backenddeployment.yml -n haproxy
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment-datacenter
+  namespace: haproxy
+  labels:
+    run: ingress-default-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: ingress-default-backend
+  template:
+    metadata:
+      labels:
+        run: ingress-default-backend
+    spec:
+      containers:
+      - name: backend-container-datacenter
+        image: gcr.io/google_containers/defaultbackend:1.0 
+        resources:
+          limits:
+            memory: "450Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+
+##Step6 - Create a Service for Backend
+##Run kubectl create -f backendservice.yml -n haproxy  
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-backend-datacenter
+  namespace: haproxy
+  labels:
+    run: ingress-default-backend
+spec:
+  selector:
+    run: ingress-default-backend
+  ports:
+  - port: 8080
+    name: port-backend
+    protocol: TCP
+    targetPort: 8080
+    
+##Step7 - Create a Frontend Deployment
+##Run kubectl create -f frontenddeployment.yml -n haproxy 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haproxy-ingress-datacenter
+  namespace: haproxy
+  labels:
+    run: haproxy-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: haproxy-ingress
+  template:
+    metadata:
+      labels:
+        run: haproxy-ingress
+    spec:
+	  serviceAccountName: haproxy-service-account-datacenter 
+      containers:
+      - name: ingress-container-datacenter
+        image: haproxytech/kubernetes-ingress
+        resources:
+          requests:
+            memory: "50Mi"
+            cpu: "500m"	
+        args:
+          - "--default-backend-service=haproxy-controller-datacenter/service-backend-datacenter"      
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443
+        - name: stat
+          containerPort: 1024  
+        env:
+          - name: TZ
+            value: "Etc/UTC"
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name  
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 1024
+            
+##Step8 - Create a Frontend Service
+##Run kubectl create -f frontendservice.yml -n haproxy 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-service-datacenter
+  namespace: haproxy
+  labels:
+    run: ingress-ingress  
+spec:
+  type: NodePort
+  selector:
+    run: haproxy-ingress
+  ports:
+  - port: 80
+    name: http
+    protocol: TCP
+    targetPort: 80
+    nodePort: 32456
+  - port: 443
+    name: https
+    protocol: TCP
+    targetPort: 443
+    nodePort: 32567
+  - port: 1024
+    name: stat
+    protocol: TCP
+    targetPort: 1024
+    nodePort: 32678
