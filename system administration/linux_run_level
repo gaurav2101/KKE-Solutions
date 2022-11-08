@@ -1,1 +1,5 @@
-
+Check current run level 
+[root@host1 abc]# who -r
+         run-level 3  2022-11-08 08:39
+modify run level
+ - init X {X can be between 0 to 6}
