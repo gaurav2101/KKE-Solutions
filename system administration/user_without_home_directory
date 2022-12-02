@@ -1,1 +1,2 @@
 useradd -M username
+useradd username -e yyyy-mm-dd
