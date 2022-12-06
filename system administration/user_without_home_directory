@@ -6,3 +6,25 @@ useradd username -e yyyy-mm-dd
 yum install -y policycoreutils policycoreutils-python selinux-policy selinux-policy-targeted libselinux-utils setroubleshoot-server setools setools-console mcstrans
 sestatus
 vi /etc/sysconfig/selinux
+#Setup haproxy and configure logrotate
+yum install -y haproxy
+/var/log/haproxy.log {
+    monthly
+    rotate 3
+    missingok
+    notifempty
+    compress
+    sharedscripts
+    postrotate
+        /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+        /bin/kill -HUP `cat /var/run/rsyslogd.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+}
+#Apache server hardening
+##Hide Apache version 
+ServerTokens Prod
+ServerSignature Off
+##Diasble directory listing
+<Directory "/var/www/html">
+  Options -Indexes
+</Directory>
