@@ -1,3 +1,8 @@
+#Add user without home directory
 useradd -M username
+#Add user with expiry date
 useradd username -e yyyy-mm-dd
+#Setup Selinux 
 yum install -y policycoreutils policycoreutils-python selinux-policy selinux-policy-targeted libselinux-utils setroubleshoot-server setools setools-console mcstrans
+sestatus
+vi /etc/sysconfig/selinux
