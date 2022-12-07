@@ -2,6 +2,13 @@
 useradd -M username
 #Add user with expiry date
 useradd username -e yyyy-mm-dd
+#useradd commands
+useradd -e -u -g -d -s username
+-e = expiry date
+-u = custom UID
+-g = custom GID
+-d = custom directory
+-s = specify login shells
 #Setup Selinux 
 yum install -y policycoreutils policycoreutils-python selinux-policy selinux-policy-targeted libselinux-utils setroubleshoot-server setools setools-console mcstrans
 sestatus
