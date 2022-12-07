@@ -9,6 +9,17 @@ useradd -e -u -g -d -s username
 -g = custom GID
 -d = custom directory
 -s = specify login shells
+#IpTables
+iptables -A input -p tcp -s 100.00.00.00 -dport 22 -j ACCEPT
+-D = Delete Rule
+-I = Insert Rule
+-A = Add rule (Input, Output, Forward)
+-p = protocol
+-s = Source
+-d = Destination
+-dport = Destination Port
+-j = Action (Accept, Reject)
+Default = Accept all connections
 #Setup Selinux 
 yum install -y policycoreutils policycoreutils-python selinux-policy selinux-policy-targeted libselinux-utils setroubleshoot-server setools setools-console mcstrans
 sestatus
