@@ -20,6 +20,41 @@ iptables -A input -p tcp -s 100.00.00.00 -dport 22 -j ACCEPT
 -dport = Destination Port
 -j = Action (Accept, Reject)
 Default = Accept all connections
+#Block Device
+Major Number Device Type
+1               RAM
+3               HardDisk/CDROM
+6               Parallel Printers
+8               SCSI Device (Fixed naming Convention SD)
+fdisk/gdisk - can be used to create or delete partitions
+Disk Partition Types
+1. Primary Partition -- Used to boot an OS. Can be only 4 partitions with max size 2 TB(MBR)
+2. Extended Partition
+3. Logical Partition
+Partition schemes
+1. MBR
+2. GPT
+GPT can have unlimites partions per disk.
+File Systems
+ext2, ext3 allow max file of 2 TB and volume size of 4TB
+ext4 can support max 16 TB of file size and 1 Exabyte pf volume size
+fstab
+device-spec mountpoint fs-type options Dump Pass 
+UUID of device
+Dump - A number indicating whether and how often the file system should be backed up by the dump program; a zero indicates the file system will never be automatically backed up
+Pass - A number indicating the order in which the fsck program will check the devices for errors at boot time:
+0 - Do not check
+1 - check immediately during reboot
+2 - check after boot
+DAS - Direct attached storage. Block storage Device
+NAS - Network attached storage. File Storage Device.    
+SAN - Storage area network. Block Storage Device. Storage is allocated to host in form of LUN(Logical Unit Number)
+LUN - Range of block provisioned from a pool of shared storage
+NFS - File  storage.
+LVM - allows grouoing of multiple physical volumes(hard disk or partitions) in a volume group.We can carve out logical volumes from this group.
+#journalCTL
+journalctl -u docker.service
+systemctl edit service --full (This will make changes immediately and there is no need to run systemctl daemon-reload command) 
 #Setup Selinux 
 yum install -y policycoreutils policycoreutils-python selinux-policy selinux-policy-targeted libselinux-utils setroubleshoot-server setools setools-console mcstrans
 sestatus
