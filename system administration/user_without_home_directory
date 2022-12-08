@@ -81,3 +81,18 @@ ServerSignature Off
 <Directory "/var/www/html">
   Options -Indexes
 </Directory>
+#Setuo local reposlist
+1. check repolist
+yum repolist 
+2. create repo
+[root@stbkp01 ~]# cat /etc/yum.repos.d/epel_local.repo 
+[epel_local]
+name=epel_local
+baseurl=file:///packages/downloaded_rpms/
+enabled = 1
+gpgcheck = 0
+3. Install package
+yum install wget
+#Copy files while keeping directory structure intact
+sudo find . -name "*.js" -exec cp --parent \{\} /news \;
+
