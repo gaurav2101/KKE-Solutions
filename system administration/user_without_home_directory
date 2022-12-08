@@ -95,4 +95,6 @@ gpgcheck = 0
 yum install wget
 #Copy files while keeping directory structure intact
 sudo find . -name "*.js" -exec cp --parent \{\} /news \;
+#Password less sudo access
+user    ALL=(ALL)   NOPASSWD:ALL
 
