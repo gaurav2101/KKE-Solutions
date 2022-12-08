@@ -97,4 +97,6 @@ yum install wget
 sudo find . -name "*.js" -exec cp --parent \{\} /news \;
 #Password less sudo access
 user    ALL=(ALL)   NOPASSWD:ALL
+Check sudo file for error
+sudo -l
 
