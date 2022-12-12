@@ -99,4 +99,18 @@ sudo find . -name "*.js" -exec cp --parent \{\} /news \;
 user    ALL=(ALL)   NOPASSWD:ALL
 Check sudo file for error
 sudo -l
-
+##Encyption in Liux using GPG
+1. Import Public and private key
+gpg --import public_key.asc
+gpg --import private_key.asc
+gpg --list-keys
+gpg --list-secret-keys
+2. Encrypt the file
+gpg --encrypt -r kodekloud@kodekloud.com --armor < encrypt_me.txt  -o encrypted_me.asc
+3. Decrypt the file
+gpg --decrypt decrypt_me.asc > decrypted_me.txt
+##Set headers in apache
+1. Edit httpd.cong file and add below lines
+Header set X-XSS-Protection "1; mode=block"
+Header always append X-Frame-Options SAMEORIGIN
+header set X-Content-Type-Options nosniff
